@@ -1,5 +1,7 @@
 package commands
 
+import "errors"
+
 type CLICommand struct {
 	Name        string
 	Description string
@@ -18,6 +20,13 @@ func (cfg *Config) GetNext() string {
 	return cfg.Next
 }
 
+func (cfg *Config) GetPrevious() (string, error) {
+	if cfg.Previous == "" {
+		return "", errors.New("you're on the first page")
+	}
+	return cfg.Previous, nil
+}
+
 func GetSupportedCommands() map[string]CLICommand {
 	supportedCommands := map[string]CLICommand{
 		"exit": {
@@ -34,6 +43,11 @@ func GetSupportedCommands() map[string]CLICommand {
 			Name:        "map",
 			Description: "List the next 20 locations",
 			Callback:    commandMap,
+		},
+		"mapb": {
+			Name:        "mapb",
+			Description: "List the previous 20 locations",
+			Callback:    commandMapb,
 		},
 	}
 	return supportedCommands

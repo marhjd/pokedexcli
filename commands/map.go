@@ -20,27 +20,53 @@ type AreaResult struct {
 
 func commandMap(cfg *Config) error {
 	res, err := http.Get(cfg.GetNext())
+	if err != nil {
+		return err
+	}
 	defer res.Body.Close()
+
+	locationArea, err := setConfigLocationAreas(cfg, res)
 	if err != nil {
 		return err
 	}
+	printLocationAreaResults(*locationArea)
 
-	locationArea := new(LocationArea)
-	err = json.NewDecoder(res.Body).Decode(locationArea)
-	if err != nil {
-		return err
-	}
-	cfg.Next = locationArea.Next
-	cfg.Previous = locationArea.Previous
-
-	for _, result := range locationArea.Results {
-		fmt.Println(result.Name)
-	}
 	return nil
 }
 
 func commandMapb(cfg *Config) error {
-	// TODO
-	panic("implement me")
+	url, err := cfg.GetPrevious()
+	if err != nil {
+		return err
+	}
+	res, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	locationArea, err := setConfigLocationAreas(cfg, res)
+	if err != nil {
+		return err
+	}
+	printLocationAreaResults(*locationArea)
+
 	return nil
+}
+
+func setConfigLocationAreas(cfg *Config, res *http.Response) (*LocationArea, error) {
+	locationArea := new(LocationArea)
+	err := json.NewDecoder(res.Body).Decode(locationArea)
+	if err != nil {
+		return nil, err
+	}
+	cfg.Next = locationArea.Next
+	cfg.Previous = locationArea.Previous
+	return locationArea, nil
+}
+
+func printLocationAreaResults(locationArea LocationArea) {
+	for _, result := range locationArea.Results {
+		fmt.Println(result.Name)
+	}
 }
