@@ -11,6 +11,7 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+	cfg := new(commands.Config)
 	for {
 		fmt.Print("Pokedex > ")
 		if scanner.Scan() {
@@ -20,7 +21,7 @@ func main() {
 				userCmd := words[0]
 				supportedCmds := commands.GetSupportedCommands()
 				if cmd, exists := supportedCmds[userCmd]; exists {
-					if err := cmd.Callback(); err != nil {
+					if err := cmd.Callback(cfg); err != nil {
 						fmt.Println(err)
 					}
 				} else {
