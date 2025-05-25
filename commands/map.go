@@ -1,8 +1,10 @@
 package commands
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -19,16 +21,30 @@ type AreaResult struct {
 }
 
 func commandMap(cfg *Config) error {
-	res, err := http.Get(cfg.GetNext())
+	url := cfg.GetNext()
+
+	if shouldReturn, err := checkCache(cfg, url); shouldReturn {
+		return err
+	}
+
+	res, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
-
-	locationArea, err := setConfigLocationAreas(cfg, res)
+	locationArea, err := extractLocationArea(res.Body)
 	if err != nil {
 		return err
 	}
+
+	setNextAndPrevLocationArea(cfg, locationArea)
+	b := bytes.NewBuffer(make([]byte, 0))
+	e := json.NewEncoder(b)
+	err = e.Encode(locationArea)
+	if err != nil {
+		return err
+	}
+	cfg.Cache.Add(url, b.Bytes())
 	printLocationAreaResults(*locationArea)
 
 	return nil
@@ -39,30 +55,61 @@ func commandMapb(cfg *Config) error {
 	if err != nil {
 		return err
 	}
+
+	if shouldReturn, err := checkCache(cfg, url); shouldReturn {
+		return err
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
 
-	locationArea, err := setConfigLocationAreas(cfg, res)
+	locationArea, err := extractLocationArea(res.Body)
 	if err != nil {
 		return err
 	}
+
+	setNextAndPrevLocationArea(cfg, locationArea)
+	b := bytes.NewBuffer(make([]byte, 0))
+	e := json.NewEncoder(b)
+	err = e.Encode(locationArea)
+	if err != nil {
+		return err
+	}
+	cfg.Cache.Add(url, b.Bytes())
 	printLocationAreaResults(*locationArea)
 
 	return nil
 }
 
-func setConfigLocationAreas(cfg *Config, res *http.Response) (*LocationArea, error) {
+func extractLocationArea(reader io.Reader) (*LocationArea, error) {
 	locationArea := new(LocationArea)
-	err := json.NewDecoder(res.Body).Decode(locationArea)
+	err := json.NewDecoder(reader).Decode(locationArea)
 	if err != nil {
 		return nil, err
 	}
+	return locationArea, nil
+}
+
+func setNextAndPrevLocationArea(cfg *Config, locationArea *LocationArea) {
 	cfg.Next = locationArea.Next
 	cfg.Previous = locationArea.Previous
-	return locationArea, nil
+}
+
+func checkCache(cfg *Config, url string) (bool, error) {
+	if val, ok := cfg.Cache.Get(url); ok {
+		locationArea := new(LocationArea)
+		err := json.Unmarshal(val, locationArea)
+		if err != nil {
+			return true, err
+		}
+		setNextAndPrevLocationArea(cfg, locationArea)
+		printLocationAreaResults(*locationArea)
+		return true, nil
+	}
+	return false, nil
 }
 
 func printLocationAreaResults(locationArea LocationArea) {

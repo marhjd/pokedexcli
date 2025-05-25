@@ -1,6 +1,10 @@
 package commands
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/marhjd/pokedexcli/internal/pokecache"
+)
 
 type CLICommand struct {
 	Name        string
@@ -11,11 +15,14 @@ type CLICommand struct {
 type Config struct {
 	Next     string
 	Previous string
+	Cache    pokecache.Cache
 }
+
+const baseURL = "https://pokeapi.co/api/v2/"
 
 func (cfg *Config) GetNext() string {
 	if cfg.Next == "" {
-		return "https://pokeapi.co/api/v2/location-area/"
+		return baseURL + "location-area/"
 	}
 	return cfg.Next
 }
