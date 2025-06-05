@@ -28,9 +28,15 @@ func StartRepl() {
 			words := strings.Fields(strings.ToLower(userInput))
 			if len(words) > 0 {
 				userCmd := words[0]
+				userParam := ""
+				fmt.Println(userParam)
+				if len(words) > 1 {
+					userParam = words[1]
+					fmt.Println(userParam)
+				}
 				supportedCmds := commands.GetSupportedCommands()
 				if cmd, exists := supportedCmds[userCmd]; exists {
-					if err := cmd.Callback(cfg); err != nil {
+					if err := cmd.Callback(cfg, userParam); err != nil {
 						fmt.Println(err)
 					}
 				} else {

@@ -20,7 +20,7 @@ type AreaResult struct {
 	URL  string `json:"url"`
 }
 
-func commandMap(cfg *Config) error {
+func commandMap(cfg *Config, _ string) error {
 	url := cfg.GetNext()
 
 	if shouldReturn, err := checkCache(cfg, url); shouldReturn {
@@ -50,7 +50,7 @@ func commandMap(cfg *Config) error {
 	return nil
 }
 
-func commandMapb(cfg *Config) error {
+func commandMapb(cfg *Config, _ string) error {
 	url, err := cfg.GetPrevious()
 	if err != nil {
 		return err

@@ -9,7 +9,7 @@ import (
 type CLICommand struct {
 	Name        string
 	Description string
-	Callback    func(cfg *Config) error
+	Callback    func(cfg *Config, s string) error
 }
 
 type Config struct {
@@ -55,6 +55,11 @@ func GetSupportedCommands() map[string]CLICommand {
 			Name:        "mapb",
 			Description: "List the previous 20 locations",
 			Callback:    commandMapb,
+		},
+		"explore": {
+			Name:        "explore",
+			Description: "Explore the pokemon in an area",
+			Callback:    commandExplore,
 		},
 	}
 	return supportedCommands

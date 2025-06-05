@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	http.DefaultClient.Timeout = time.Second * 5
+	http.DefaultClient.Timeout = time.Minute * 1
 	StartRepl()
 }
