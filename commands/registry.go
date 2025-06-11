@@ -16,6 +16,9 @@ type Config struct {
 	Next     string
 	Previous string
 	Cache    pokecache.Cache
+	Pokedex  struct {
+		Pokemon map[string]Pokemon
+	}
 }
 
 const baseURL = "https://pokeapi.co/api/v2/"
@@ -60,6 +63,16 @@ func GetSupportedCommands() map[string]CLICommand {
 			Name:        "explore",
 			Description: "Explore the pokemon in an area",
 			Callback:    commandExplore,
+		},
+		"catch": {
+			Name:        "catch",
+			Description: "Catch a pokemon",
+			Callback:    commandCatch,
+		},
+		"inspect": {
+			Name:        "inspect",
+			Description: "Inspect a pokemon",
+			Callback:    commandInspect,
 		},
 	}
 	return supportedCommands

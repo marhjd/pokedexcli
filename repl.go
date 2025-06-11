@@ -21,6 +21,7 @@ func StartRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
 	cfg := new(commands.Config)
 	cfg.Cache = *pokecache.NewCache(1 * time.Minute)
+	cfg.Pokedex.Pokemon = make(map[string]commands.Pokemon)
 	for {
 		fmt.Print("Pokedex > ")
 		if scanner.Scan() {
@@ -29,10 +30,8 @@ func StartRepl() {
 			if len(words) > 0 {
 				userCmd := words[0]
 				userParam := ""
-				fmt.Println(userParam)
 				if len(words) > 1 {
 					userParam = words[1]
-					fmt.Println(userParam)
 				}
 				supportedCmds := commands.GetSupportedCommands()
 				if cmd, exists := supportedCmds[userCmd]; exists {
