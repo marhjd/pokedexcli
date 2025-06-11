@@ -74,6 +74,11 @@ func GetSupportedCommands() map[string]CLICommand {
 			Description: "Inspect a pokemon",
 			Callback:    commandInspect,
 		},
+		"pokedex": {
+			Name:        "pokedex",
+			Description: "List all pokemon in the pokedex",
+			Callback:    commandPokedex,
+		},
 	}
 	return supportedCommands
 }
